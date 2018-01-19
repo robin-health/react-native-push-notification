@@ -26,55 +26,55 @@ public class RNPushNotificationListenerService extends GcmListenerService {
 
     @Override
     public void onMessageReceived(String from, final Bundle bundle) {
-        JSONObject data = getPushData(bundle.getString("data"));
-        if (data != null) {
-            if (!bundle.containsKey("message")) {
-                bundle.putString("message", data.optString("alert", "Notification received"));
-            }
-            if (!bundle.containsKey("title")) {
-                bundle.putString("title", data.optString("title", null));
-            }
-            if (!bundle.containsKey("sound")) {
-                bundle.putString("soundName", data.optString("sound", null));
-            }
-            if (!bundle.containsKey("color")) {
-                bundle.putString("color", data.optString("color", null));
-            }
+        // JSONObject data = getPushData(bundle.getString("data"));
+        // if (data != null) {
+        //     if (!bundle.containsKey("message")) {
+        //         bundle.putString("message", data.optString("alert", "Notification received"));
+        //     }
+        //     if (!bundle.containsKey("title")) {
+        //         bundle.putString("title", data.optString("title", null));
+        //     }
+        //     if (!bundle.containsKey("sound")) {
+        //         bundle.putString("soundName", data.optString("sound", null));
+        //     }
+        //     if (!bundle.containsKey("color")) {
+        //         bundle.putString("color", data.optString("color", null));
+        //     }
 
-            final int badge = data.optInt("badge", -1);
-            if (badge >= 0) {
-                ApplicationBadgeHelper.INSTANCE.setApplicationIconBadgeNumber(this, badge);
-            }
-        }
+        //     final int badge = data.optInt("badge", -1);
+        //     if (badge >= 0) {
+        //         ApplicationBadgeHelper.INSTANCE.setApplicationIconBadgeNumber(this, badge);
+        //     }
+        // }
 
-        Log.v(LOG_TAG, "onMessageReceived: " + bundle);
+        // Log.v(LOG_TAG, "onMessageReceived: " + bundle);
 
-        // We need to run this on the main thread, as the React code assumes that is true.
-        // Namely, DevServerHelper constructs a Handler() without a Looper, which triggers:
-        // "Can't create handler inside thread that has not called Looper.prepare()"
-        Handler handler = new Handler(Looper.getMainLooper());
-        handler.post(new Runnable() {
-            public void run() {
-                // Construct and load our normal React JS code bundle
-                ReactInstanceManager mReactInstanceManager = ((ReactApplication) getApplication()).getReactNativeHost().getReactInstanceManager();
-                ReactContext context = mReactInstanceManager.getCurrentReactContext();
-                // If it's constructed, send a notification
-                if (context != null) {
-                    handleRemotePushNotification((ReactApplicationContext) context, bundle);
-                } else {
-                    // Otherwise wait for construction, then send the notification
-                    mReactInstanceManager.addReactInstanceEventListener(new ReactInstanceManager.ReactInstanceEventListener() {
-                        public void onReactContextInitialized(ReactContext context) {
-                            handleRemotePushNotification((ReactApplicationContext) context, bundle);
-                        }
-                    });
-                    if (!mReactInstanceManager.hasStartedCreatingInitialContext()) {
-                        // Construct it in the background
-                        mReactInstanceManager.createReactContextInBackground();
-                    }
-                }
-            }
-        });
+        // // We need to run this on the main thread, as the React code assumes that is true.
+        // // Namely, DevServerHelper constructs a Handler() without a Looper, which triggers:
+        // // "Can't create handler inside thread that has not called Looper.prepare()"
+        // Handler handler = new Handler(Looper.getMainLooper());
+        // handler.post(new Runnable() {
+        //     public void run() {
+        //         // Construct and load our normal React JS code bundle
+        //         ReactInstanceManager mReactInstanceManager = ((ReactApplication) getApplication()).getReactNativeHost().getReactInstanceManager();
+        //         ReactContext context = mReactInstanceManager.getCurrentReactContext();
+        //         // If it's constructed, send a notification
+        //         if (context != null) {
+        //             handleRemotePushNotification((ReactApplicationContext) context, bundle);
+        //         } else {
+        //             // Otherwise wait for construction, then send the notification
+        //             mReactInstanceManager.addReactInstanceEventListener(new ReactInstanceManager.ReactInstanceEventListener() {
+        //                 public void onReactContextInitialized(ReactContext context) {
+        //                     handleRemotePushNotification((ReactApplicationContext) context, bundle);
+        //                 }
+        //             });
+        //             if (!mReactInstanceManager.hasStartedCreatingInitialContext()) {
+        //                 // Construct it in the background
+        //                 mReactInstanceManager.createReactContextInBackground();
+        //             }
+        //         }
+        //     }
+        // });
     }
 
     private JSONObject getPushData(String dataString) {
